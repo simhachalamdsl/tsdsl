@@ -12,10 +12,14 @@ pipeline {
             }
         }
 
-        stage('Maven Build') {
-            steps {
-                sh 'mvn clean package'
-                sh "mv target/*.war target/myweb.war"
+        stage('Package HTML to WAR') {
+    steps {
+        sh '''
+            mkdir -p target/myweb
+            cp -r webapps/* target/myweb/
+            cd target
+            jar -cvf myweb.war myweb
+        '''
                 
             }
         }
