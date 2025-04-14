@@ -16,7 +16,7 @@ pipeline {
     steps {
         sh '''
             mkdir -p target/myweb
-            cp -r webapps/* target/myweb/
+            cp -r src/main/webapps/* target/myweb/
             cd target
             jar -cvf myweb.war myweb
         '''
