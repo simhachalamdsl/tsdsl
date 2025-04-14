@@ -15,6 +15,7 @@ pipeline {
         stage('Maven Build') {
             steps {
                 sh 'mvn clean package'
+                sh "mv target/*.war target/myweb.war"
                 
             }
         }
@@ -22,12 +23,11 @@ pipeline {
         stage('Deploy to Tomcat') {
             steps {
                 sshagent(['sshkey']) {
-                    sh '''
-                    scp -o StrictHostKeyChecking=no target/tsdsl.war ubuntu@172.31.89.142:/home/ubuntu/apache-tomcat-10.1.40/webapps/
-                    scp -o StrictHostKeyChecking=no W3School.html ubuntu@172.31.89.142:/home/ubuntu/apache-tomcat-10.1.40/webapps/
-                    ssh ubuntu@172.31.89.142 /home/ubuntu/apache-tomcat-10.1.40/bin/shutdown.sh
-                    ssh ubuntu@172.31.89.142 /home/ubuntu/apache-tomcat-10.1.40/bin/startup.sh
-                    '''
+                    sh """
+                    scp -o StrictHostKeyChecking=no target/myweb.war ubuntu@172.31.81.27:/home/ubuntu/apache-tomcat-10.1.40/webapps/
+                    ssh ubuntu@172.31.81.27 /home/ubuntu/apache-tomcat-10.1.40/bin/shutdown.sh
+                    ssh ubuntu@172.31.81.27 /home/ubuntu/apache-tomcat-10.1.40/bin/startup.sh
+                    """
                 }
             }
         }
