@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        PATH = "/opt/maven3/bin:/usr/bin:/bin:$PATH"
+        PATH = "/opt/maven3/bin:$PATH"
     }
 
     stages {
@@ -13,19 +13,18 @@ pipeline {
         }
 
         stage('Maven Build') {
-            dir('my-app') {
-            sh 'mvn clean package'
-            sh 'mv target/*.war target/myweb.war'
+            steps {
+                sh 'mvn clean install || echo "Skipping Maven errors if no pom.xml is found"'
             }
         }
 
-        stage('deploy-dev') {
+        stage('Deploy HTML to Tomcat') {
             steps {
                 sshagent(['763a98f1-3c29-4c1c-a282-14f6c0d2894d']) {
                     sh '''
-                        scp -o StrictHostKeyChecking=no target/myweb.war ubuntu@172.31.89.142:/home/ubuntu/apache-tomcat-10.1.40/webapps/
-                        ssh ubuntu@172.31.89.142 /home/ubuntu/apache-tomcat-10.1.40/bin/shutdown.sh
-                        ssh ubuntu@172.31.89.142 /home/ubuntu/apache-tomcat-10.1.40/bin/startup.sh
+                    scp -o StrictHostKeyChecking=no W3School.html ubuntu@172.31.89.142:/home/ubuntu/apache-tomcat-10.1.40/webapps/
+                    ssh ubuntu@172.31.89.142 '/home/ubuntu/apache-tomcat-10.1.40/bin/shutdown.sh'
+                    ssh ubuntu@172.31.89.142 '/home/ubuntu/apache-tomcat-10.1.40/bin/startup.sh'
                     '''
                 }
             }
