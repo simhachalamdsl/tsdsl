@@ -8,7 +8,7 @@ pipeline {
     stages {
         stage('Git Checkout') {
             steps {
-                git branch: 'main', credentialsId: 'Jenkinpassword', url: 'https://github.com/simhachalamdsl/tsdsl.git'
+                git branch: 'main', credentialsId: 'gitcredentials', url: 'https://github.com/simhachalamdsl/tsdsl.git'
             }
         }
 
