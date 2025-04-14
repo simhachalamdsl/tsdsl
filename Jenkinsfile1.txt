@@ -1,29 +1,34 @@
-pipeline{
-agent any 
-environment{ 
-ΡΑΤΗ "opt/maven3/bin:$PATH" 
-stages{ 
-stage("Git Checkout"){ 
-steps{ 
-git branch: 'main', credentialsId: 'Jenkinpassword', url: 'https://github.com/simhachalamdsl/tsdsl.git'
-}
-} 
-stage "Maven Build"){ 
-staps{ 
-sh "mvn clean package" 
-sh "mv target/*.war target/myweb.war" 
-}
-}
-stage("deploy-dev"){ 
-steps{ 
-sshagent(['763a98f1-3c29-4c1c-a282-14f6c0d2894d']){
-sh""" 
-scp -o StrictHostKeyChecking-no target/myweb.war ubuntu@172.31.89.142/home/ubuntu/apache-tomcat-10.1.40/webapps/
-ssh ubuntu@172.31.89.142 /home/ubuntu/apache-tomcat-10.1.40/bin/shutdown.sh 
-ssh ubuntu@172.31.89.142 /home/ubuntu/apache-tomcat-10.1.40/bin/startup.sh 
-"""
-}
-}
-}
-}
+pipeline {
+    agent any
+
+    environment {
+        PATH = "/opt/maven3/bin:$PATH"
+    }
+
+    stages {
+        stage('Git Checkout') {
+            steps {
+                git branch: 'main', credentialsId: 'Jenkinpassword', url: 'https://github.com/simhachalamdsl/tsdsl.git'
+            }
+        }
+
+        stage('Maven Build') {
+            steps {
+                sh 'mvn clean package'
+                sh 'mv target/*.war target/myweb.war'
+            }
+        }
+
+        stage('deploy-dev') {
+            steps {
+                sshagent(['763a98f1-3c29-4c1c-a282-14f6c0d2894d']) {
+                    sh '''
+                        scp -o StrictHostKeyChecking=no target/myweb.war ubuntu@172.31.89.142:/home/ubuntu/apache-tomcat-10.1.40/webapps/
+                        ssh ubuntu@172.31.89.142 /home/ubuntu/apache-tomcat-10.1.40/bin/shutdown.sh
+                        ssh ubuntu@172.31.89.142 /home/ubuntu/apache-tomcat-10.1.40/bin/startup.sh
+                    '''
+                }
+            }
+        }
+    }
 }
