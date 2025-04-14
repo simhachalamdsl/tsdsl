@@ -5,7 +5,7 @@ environment{
 stages{ 
 stage("Git Checkout"){ 
 steps{ 
-git branch: 'Prod', credentialsId: 'tsimhachalam', url: 'https://github.com/thamminenisimhachalam/ts_dsl.git'
+git branch: 'main', url: 'https://github.com/simhachalamdsl/tsdsl.git'
 }
 } 
 stage "Maven Build"){ 
