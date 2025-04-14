@@ -1,90 +1,27 @@
-@Library('jenkins-shared-library@main') _
 pipeline {
+    agent any
 
-  agent any
-  
-  parameters {
-	choice(name: 'action', choices: 'create\nrollback', description: 'Create/rollback of the deployment')
-    string(name: 'ImageName', description: "Name of the docker build", defaultValue: "kubernetes-configmap-reload")
-	string(name: 'ImageTag', description: "Name of the docker build",defaultValue: "v1")
-	string(name: 'AppName', description: "Name of the Application",defaultValue: "kubernetes-configmap-reload")
-    string(name: 'docker_repo', description: "Name of docker repository",defaultValue: "praveensingam1994")
-  }
-      
-  tools{ 
-        maven 'maven3'
+    environment {
+        PATH = "/opt/maven3/bin:$PATH"
     }
+
     stages {
-        stage('Git-Checkout') {
-            when {
-				expression { params.action == 'create' }
-			}
+        stage('Git Checkout') {
             steps {
-                gitCheckout(
-                    branch: "main",
-                    url: "https://github.com/DEVOPS-WITH-WEB-DEV/spring-cloud-kubernetes.git"
-                )
+                git branch: 'main', credentialsId: 'Jenkinpassword', url: 'https://github.com/simhachalamdsl/tsdsl.git'
             }
         }
-        stage('Build-Maven'){
-            when {
-				expression { params.action == 'create' }
-			}
-    		steps {
-        		dir("${params.AppName}") {
-        			sh 'mvn clean package'
-        		}
-    		}
-	    }
-	    stage("DockerBuild and Push") {
-	        when {
-				expression { params.action == 'create' }
-			}
-	        steps {
-	            dir("${params.AppName}") {
-	                dockerBuild ( "${params.ImageName}", "${params.docker_repo}" )
-	            }
-	        }
-	    }
-	    stage("Docker-CleanUP") {
-	        when {
-				expression { params.action == 'create' }
-			}
-	        steps {
-	            dockerCleanup ( "${params.ImageName}", "${params.docker_repo}" )
-			}
-		}
-			    stage("Ansible Setup") {
-	        when {
-				expression { params.action == 'create' }
-			}
-	        steps {
-	            sh 'ansible-playbook ${WORKSPACE}/kubernetes-configmap-reload/server_setup.yml'
-			}
-		}
-	    stage("Create deployment") {
-			when {
-				expression { params.action == 'create' }
-			}
-	        steps {
-	            sh 'echo ${WORKSPACE}'
-	            sh 'kubectl create -f ${WORKSPACE}/kubernetes-configmap-reload/kubernetes-configmap.yml'
-	        }
-	    }
-	    stage ("wait_for_pods"){
-	    steps{
-              
-                sh 'sleep 300'
-             
-	    }
-	    }
-		stage("rollback deployment") {
-	        steps {	            	         	           
-	              sh """
-	                   kubectl delete deploy ${params.AppName}
-					    kubectl delete svc ${params.AppName}
-				  """	       
-	        }
-	    }
+
+        stage('Deploy HTML to Tomcat') {
+            steps {
+                sshagent(['763a98f1-3c29-4c1c-a282-14f6c0d2894d']) {
+                    sh '''
+                    scp -o StrictHostKeyChecking=no W3School.html ubuntu@172.31.89.142:/home/ubuntu/apache-tomcat-10.1.40/webapps/ROOT/
+                    ssh ubuntu@172.31.89.142 /home/ubuntu/apache-tomcat-10.1.40/bin/shutdown.sh
+                    ssh ubuntu@172.31.89.142 /home/ubuntu/apache-tomcat-10.1.40/bin/startup.sh
+                    '''
+                }
+            }
+        }
     }
 }
