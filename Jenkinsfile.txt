@@ -18,7 +18,7 @@ pipeline {
             mkdir -p target/testapp
             cp -r src/main/webapps/w3school.html target/testapp
             cd target
-            jar -cvf testapp.war
+            jar -cvf testapp.war w3school.html
         '''
                 
             }
