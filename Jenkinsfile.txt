@@ -16,9 +16,9 @@ pipeline {
     steps {
         sh '''
             mkdir -p target/testapp/WEB-INF
-            cp -r src/main/webapps/w3school.html target/testapp/
+            cp src/main/webapps/w3school.html target/testapp/index.html
             cd target/testapp
-            jar -cvf testapp.war *
+            jar -cvf ../testapp.war *
         '''
                 
             }
