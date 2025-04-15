@@ -15,10 +15,10 @@ pipeline {
         stage('Package HTML to WAR') {
     steps {
         sh '''
-            mkdir -p target
-            cp -r src/main/webapps/w3school.html target/
+            mkdir -p target/testapp
+            cp -r src/main/webapps/w3school.html target/testapp
             cd target
-            jar -cvf w3school.war w3school.html
+            jar -cvf testapp.war testapp
         '''
                 
             }
@@ -28,7 +28,7 @@ pipeline {
             steps {
                 sshagent(['sshkey']) {
                     sh """
-                    scp -o StrictHostKeyChecking=no target/w3school.war ubuntu@172.31.81.27:/home/ubuntu/apache-tomcat-10.1.40/webapps/
+                    scp -o StrictHostKeyChecking=no target/testapp.war ubuntu@172.31.81.27:/home/ubuntu/apache-tomcat-10.1.40/webapps/
                     ssh ubuntu@172.31.81.27 /home/ubuntu/apache-tomcat-10.1.40/bin/shutdown.sh
                     ssh ubuntu@172.31.81.27 /home/ubuntu/apache-tomcat-10.1.40/bin/startup.sh
                     """
