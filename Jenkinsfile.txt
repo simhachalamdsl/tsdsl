@@ -15,10 +15,10 @@ pipeline {
         stage('Package HTML to WAR') {
     steps {
         sh '''
-            mkdir -p target/testapp
+            mkdir -p target/testapp/WEB-INF
             cp -r src/main/webapps/w3school.html target/testapp/
-            cd target
-            jar -cvf testapp.war testapp
+            cd target/testapp
+            jar -cvf testapp.war *
         '''
                 
             }
